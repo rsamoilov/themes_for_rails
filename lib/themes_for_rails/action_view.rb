@@ -1,4 +1,5 @@
 # encoding: utf-8
+include ActionView::Helpers::AssetTagHelper
 module ThemesForRails
   
   module ActionView
@@ -7,6 +8,18 @@ module ThemesForRails
 
     included do
       include ThemesForRails::CommonMethods
+    end
+
+    def base_theme_javascript_path(options)
+      theme_dir = ThemesForRails.config.themes_routes_dir
+      "/#{theme_dir}/#{options[:theme]}/javascripts/#{options[:asset]}"
+    end
+
+    def base_theme_stylesheet_path(options, extra = {})
+      Rails.logger.debug options
+      theme_dir = ThemesForRails.config.themes_routes_dir
+      Rails.logger.debug theme_dir
+      "/#{theme_dir}/#{options[:theme]}/stylesheets/#{options[:asset]}"
     end
 
     def current_theme_stylesheet_path(asset)
@@ -57,6 +70,32 @@ module ThemesForRails
       files_with_options += [options]
 
       stylesheet_link_tag(*files_with_options)
+    end
+
+    def theme_stylesheet_link_tag_for_liquid(*files)
+      options = files.extract_options!
+      self.theme_name = options.delete(:theme_name)
+      options.merge!({ :type => "text/css" })
+      files_with_options = files.collect {|file| theme_stylesheet_path(file) }
+      files_with_options += [options]
+      Rails.logger.debug files_with_options
+      stylesheet_link_tag(*files_with_options)
+    end
+
+    def theme_javascript_include_tag_for_liquid(*files)
+      options = files.extract_options!
+      self.theme_name = options.delete(:theme_name)
+      options.merge!({ :type => "text/javascript" })
+      files_with_options = files.collect {|file| theme_javascript_path(file) }
+      files_with_options += [options]
+      Rails.logger.debug files_with_options
+      javascript_include_tag(*files_with_options)
+    end
+
+    def theme_image_tag_for_liquid(*files)
+      options = files.extract_options!
+      self.theme_name = options.delete(:theme_name)
+      theme_image_tag
     end
   end
 end

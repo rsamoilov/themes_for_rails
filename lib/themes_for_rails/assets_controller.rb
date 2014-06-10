@@ -20,19 +20,42 @@ module ThemesForRails
     
     def handle_asset(prefix)
       asset, theme = params[:asset], params[:theme]
-      find_themed_asset(asset, theme, prefix) do |path, mime_type|
-        response.headers['ETag'] = %("#{Digest::MD5.hexdigest(ActiveSupport::Cache.expand_cache_key(File.mtime(path).to_s + path))}")
+      Rails.logger.debug "FRANKIE"
+      Rails.logger.debug params
+      if record = find_themed_asset_in_database(asset, theme, prefix).first
+        Rails.logger.debug "SENDING CONTENT"
+        mime_type = mime_type_for(request)
+        response.headers['ETag'] = %("#{Digest::MD5.hexdigest(ActiveSupport::Cache.expand_cache_key(record.updated_at.to_s + record.path))}")
         response.headers['Cache-Control'] = "public, max-age=2592000"
-        send_file path, :type => mime_type, :disposition => "inline"
+        send_data record.content, :type => mime_type, :disposition => "inline"
+      else
+        Rails.logger.debug "SENDING FILE"
+        find_themed_asset(asset, theme, prefix) do |path, mime_type|
+           Rails.logger.debug "FILE #{path}"
+          response.headers['ETag'] = %("#{Digest::MD5.hexdigest(ActiveSupport::Cache.expand_cache_key(File.mtime(path).to_s + path))}")
+          response.headers['Cache-Control'] = "public, max-age=2592000"
+          send_file path, :type => mime_type, :disposition => "inline"
+        end
+      end
+    end
+
+    def find_themed_asset_in_database(asset_name, asset_theme, asset_type, &block)
+      conditions = {
+        :path => "#{asset_type}/#{asset_name}"
+      }
+      CustomTemplate.where(conditions).map do |record|
+        record
       end
     end
     
     def find_themed_asset(asset_name, asset_theme, asset_type, &block)
       path = asset_path(asset_name, asset_theme, asset_type)
+       Rails.logger.debug "ASSET PATH #{path}"
       if File.exists?(path)
         yield path, mime_type_for(request)
       elsif File.extname(path).blank?
         asset_name = "#{asset_name}.#{extension_from(request.path_info)}"
+         Rails.logger.debug "ASSET NAME #{path}"
         return find_themed_asset(asset_name, asset_theme, asset_type, &block) 
       else
         render_not_found
