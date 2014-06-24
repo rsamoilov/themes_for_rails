@@ -22,6 +22,11 @@ module ThemesForRails
       "/#{theme_dir}/#{options[:theme]}/stylesheets/#{options[:asset]}"
     end
 
+    def base_theme_image_path(options, extra = {})
+      theme_dir = ThemesForRails.config.themes_routes_dir
+      "/#{theme_dir}/#{options[:theme]}/images/#{options[:asset]}"
+    end
+
     def current_theme_stylesheet_path(asset)
       base_theme_stylesheet_path(:theme => self.theme_name, :asset => "#{asset}.css")
     end
@@ -92,10 +97,9 @@ module ThemesForRails
       javascript_include_tag(*files_with_options)
     end
 
-    def theme_image_tag_for_liquid(*files)
-      options = files.extract_options!
+    def theme_image_tag_for_liquid(source, options)
       self.theme_name = options.delete(:theme_name)
-      theme_image_tag
+      theme_image_tag(source, options)
     end
   end
 end
