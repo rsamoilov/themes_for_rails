@@ -12,6 +12,8 @@ module ThemesForRails
         :as => :base_theme_javascript, :constraints => constraints
       get "#{theme_dir}/:theme/images/*asset" => 'themes_for_rails/assets#images', 
         :as => :base_theme_image, :constraints => constraints
+      get "#{theme_dir}/:theme/fonts/*asset" => 'themes_for_rails/assets#fonts', 
+        :as => :base_theme_font, :constraints => constraints
     end
 
   end

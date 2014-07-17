@@ -16,6 +16,10 @@ module ThemesForRails
       handle_asset("images")
     end
 
+    def fonts
+      handle_asset("fonts")
+    end
+
   private
     
     def handle_asset(prefix)
