@@ -49,7 +49,7 @@ module ThemesForRails
       @default_views_dir ||= ":root/themes/default/views"
     end
 
-    def default_views_dir
+    def default_assets_dir
       @default_assets_dir ||= ":root/themes/default"
     end
 
