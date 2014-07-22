@@ -7,6 +7,7 @@ module ThemesForRails
       @root_no_path = root
       @account = account
       @root = interpolate(ThemesForRails.config.snippets_dir, @account.theme.path)
+      @default_root = interpolate(ThemesForRails.config.default_snippets_dir)
       @pattern = pattern
       @pattern_no_ext = "_%s".freeze 
     end
@@ -18,10 +19,15 @@ module ThemesForRails
         :account_id => @account.id,
         :theme_id => @account.theme.id
       }
-      if record = CustomTemplate.where(conditions).first
+      if ThemesForRails.config.database_enabled and (record = CustomTemplate.where(conditions).first)
         record.content
       else
-        super(template_path, context)
+        default_path = default_full_path(template_path)
+        if File.exists?(default_path)
+          File.read(default_path)
+        else
+          super(template_path, context)
+        end
       end   
     end
 
@@ -35,6 +41,20 @@ module ThemesForRails
       end
       
       raise FileSystemError, "Illegal template path '#{File.expand_path(full_path)}'" unless File.expand_path(full_path) =~ /\A#{File.expand_path(root_no_path)}/
+
+      full_path
+    end
+
+    def default_full_path(template_path)
+      raise FileSystemError, "Illegal template name '#{template_path}'" unless template_path =~ /\A[^.\/][a-zA-Z0-9_\/]+\z/
+
+      full_path = if template_path.include?('/'.freeze)
+        File.join(default_root, File.dirname(template_path), @pattern % File.basename(template_path))
+      else
+        File.join(default_root, @pattern % template_path)
+      end
+
+      raise FileSystemError, "Illegal template path '#{File.expand_path(full_path)}'" unless File.expand_path(full_path) =~ /\A#{File.expand_path(root)}/
 
       full_path
     end
