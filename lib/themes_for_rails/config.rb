@@ -2,7 +2,7 @@
 module ThemesForRails
   class Config
 
-    attr_writer :base_dir, :themes_dir, :assets_dir, :views_dir, :themes_routes_dir, :snippets_dir, :default_assets_dir, :default_views_dir
+    attr_writer :base_dir, :themes_dir, :assets_dir, :views_dir, :themes_routes_dir, :snippets_dir, :default_assets_dir, :default_views_dir, :database_enabled
     attr_accessor :use_sass, :default_theme
     
     include Interpolation
@@ -51,6 +51,10 @@ module ThemesForRails
 
     def default_views_dir
       @default_assets_dir ||= ":root/themes/default"
+    end
+
+     def database_enabled
+      @database_enabled ||= true
     end
     
     # Full path to themes
