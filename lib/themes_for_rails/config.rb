@@ -58,7 +58,7 @@ module ThemesForRails
     end
 
      def database_enabled
-      if @database_enabled.blank?
+      if @database_enabled.nil?
         true
       else
         @database_enabled
@@ -90,6 +90,7 @@ module ThemesForRails
       @snippets_dir  = nil
       @default_views_dir = nil
       @default_assets_dir = nil
+      @default_snippets_dir = nil
     end
 
     def use_sass?
