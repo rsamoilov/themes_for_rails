@@ -26,7 +26,7 @@ module ThemesForRails
       asset, theme = params[:asset], params[:theme]
       Rails.logger.debug "FRANKIE"
       Rails.logger.debug params
-      if record = find_themed_asset_in_database(asset, theme, prefix).first
+      if ThemesForRails.config.database_enabled and (record = find_themed_asset_in_database(asset, theme, prefix).first)
         Rails.logger.debug "SENDING CONTENT"
         mime_type = mime_type_for(request)
         response.headers['ETag'] = %("#{Digest::MD5.hexdigest(ActiveSupport::Cache.expand_cache_key(record.updated_at.to_s + record.path))}")
@@ -55,8 +55,11 @@ module ThemesForRails
     def find_themed_asset(asset_name, asset_theme, asset_type, &block)
       path = asset_path(asset_name, asset_theme, asset_type)
        Rails.logger.debug "ASSET PATH #{path}"
+      default_path = default_asset_path(asset_name, asset_theme, asset_type)
       if File.exists?(path)
         yield path, mime_type_for(request)
+      elsif File.exists?(default_path)
+        yield default_path, mime_type_for(request)
       elsif File.extname(path).blank?
         asset_name = "#{asset_name}.#{extension_from(request.path_info)}"
          Rails.logger.debug "ASSET NAME #{path}"
@@ -68,6 +71,10 @@ module ThemesForRails
 
     def asset_path(asset_name, asset_theme, asset_type)
       File.join(theme_asset_path_for(asset_theme), asset_type, asset_name)
+    end
+
+    def default_asset_path(asset_name, asset_theme, asset_type)
+      File.join(default_theme_asset_path, asset_type, asset_name)
     end
 
     def render_not_found

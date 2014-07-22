@@ -40,8 +40,9 @@ module ThemesForRails
     
     # will add the view path for a given theme name
     def add_theme_view_path_for(name)
+      prepend_view_path ::ActionView::FileSystemResolver.new(default_theme_view_path)
       prepend_view_path ::ActionView::FileSystemResolver.new(theme_view_path_for(name))
-      prepend_view_path ThemesForRails::DatabaseResolver.new(name, self.current_account)
+      prepend_view_path ThemesForRails::DatabaseResolver.new(name, self.current_account) if ThemesForRails.config.database_enabled
     end
 
     def public_theme_path
@@ -60,8 +61,16 @@ module ThemesForRails
       interpolate(ThemesForRails.config.views_dir, theme_name)
     end
 
+    def default_theme_view_path
+      interpolate(ThemesForRails.config.default_views_dir)
+    end
+
     def theme_asset_path_for(theme_name)
       interpolate(ThemesForRails.config.assets_dir, theme_name)
+    end
+
+    def default_theme_asset_path
+      interpolate(ThemesForRails.config.default_assets_dir)
     end
   end
 end
