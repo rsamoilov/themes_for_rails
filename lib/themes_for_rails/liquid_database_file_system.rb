@@ -53,8 +53,7 @@ module ThemesForRails
       else
         File.join(default_root, @pattern % template_path)
       end
-
-      raise FileSystemError, "Illegal template path '#{File.expand_path(full_path)}'" unless File.expand_path(full_path) =~ /\A#{File.expand_path(root)}/
+      raise FileSystemError, "Illegal template path '#{File.expand_path(full_path)}'" unless File.expand_path(full_path) =~ /\A#{File.expand_path(default_root)}/
 
       full_path
     end
