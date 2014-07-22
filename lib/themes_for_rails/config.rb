@@ -54,7 +54,11 @@ module ThemesForRails
     end
 
      def database_enabled
-      @database_enabled ||= true
+      if @database_enabled.blank?
+        true
+      else
+        @database_enabled
+      end
     end
     
     # Full path to themes
