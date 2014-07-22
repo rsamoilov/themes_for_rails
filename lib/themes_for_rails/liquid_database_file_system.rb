@@ -22,11 +22,12 @@ module ThemesForRails
       if ThemesForRails.config.database_enabled and (record = CustomTemplate.where(conditions).first)
         record.content
       else
+        full_path = full_path(template_path)
         default_path = default_full_path(template_path)
-        if File.exists?(default_path)
+        if File.exists?(full_path)
+          File.read(full_path)
+        elsif File.exists?(default_path)
           File.read(default_path)
-        else
-          super(template_path, context)
         end
       end   
     end
