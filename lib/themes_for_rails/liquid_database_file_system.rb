@@ -1,7 +1,7 @@
 module ThemesForRails
   class LiquidDatabseFileSystem < Liquid::LocalFileSystem
     include ThemesForRails::Interpolation
-    attr_accessor :root, :root_no_path
+    attr_accessor :root, :root_no_path, :default_root
 
     def initialize(root, account, pattern = "_%s.liquid".freeze)
       @root_no_path = root
