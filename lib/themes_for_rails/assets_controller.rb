@@ -45,7 +45,8 @@ module ThemesForRails
 
     def find_themed_asset_in_database(asset_name, asset_theme, asset_type, &block)
       conditions = {
-        :path => "#{asset_type}/#{asset_name}"
+        :path => "#{asset_type}/#{asset_name}",
+        :theme_id => asset_theme.id
       }
       CustomTemplate.where(conditions).map do |record|
         record
