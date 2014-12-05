@@ -12,10 +12,16 @@ module ThemesForRails
         Rails.logger.debug "#{name}::#{prefix}::#{partial}::#{details}"
         conditions = {
           :path => normalize_path(name, prefix),
-          :locale => normalize_array(details[:locale]).first,
           :account_id => @account.id,
           :theme_id => @account.theme.id
         }
+
+        #conditions = {
+        #  :path => normalize_path(name, prefix),
+        #  :locale => normalize_array(details[:locale]).first,
+        #  :account_id => @account.id,
+        #  :theme_id => @account.theme.id
+        #}
         CustomTemplate.where(conditions).map do |record|
           initialize_template(record)
         end
