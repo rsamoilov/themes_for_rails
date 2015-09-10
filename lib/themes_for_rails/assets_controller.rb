@@ -56,16 +56,38 @@ module ThemesForRails
     
     def find_themed_asset(asset_name, asset_theme, asset_type, &block)
       path = asset_path(asset_name, asset_theme, asset_type)
-       Rails.logger.debug "ASSET PATH #{path}"
       default_path = default_asset_path(asset_name, asset_theme, asset_type)
+
       if File.exists?(path)
         yield path, mime_type_for(request)
+
       elsif File.exists?(default_path)
         yield default_path, mime_type_for(request)
+
       elsif File.extname(path).blank?
-        asset_name = "#{asset_name}.#{extension_from(request.path_info)}"
-         Rails.logger.debug "ASSET NAME #{path}"
-        return find_themed_asset(asset_name, asset_theme, asset_type, &block) 
+        if ( ext = extension_from(request.path_info) ).present?
+          asset_name = "#{asset_name}.#{ext}"
+          return find_themed_asset_with_extension(asset_name, asset_theme, asset_type, &block) 
+        else
+          render_not_found
+        end
+
+      else
+        render_not_found
+      end
+    end
+
+    
+    def find_themed_asset_with_extension(asset_name, asset_theme, asset_type, &block)
+      path = asset_path(asset_name, asset_theme, asset_type)
+      default_path = default_asset_path(asset_name, asset_theme, asset_type)
+
+      if File.exists?(path)
+        yield path, mime_type_for(request)
+
+      elsif File.exists?(default_path)
+        yield default_path, mime_type_for(request)
+
       else
         render_not_found
       end
