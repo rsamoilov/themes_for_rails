@@ -42,7 +42,12 @@ module ThemesForRails
     def add_theme_view_path_for(name)
       prepend_view_path ::ActionView::FileSystemResolver.new(default_theme_view_path)
       prepend_view_path ::ActionView::FileSystemResolver.new(theme_view_path_for(name))
-      prepend_view_path ThemesForRails::DatabaseResolver.new(name, self.current_account) if ThemesForRails.config.database_enabled
+      if self.current_account.tc('view.theme').present?
+        prepend_view_path ::ActionView::FileSystemResolver.new(theme_view_path_for(self.current_account.tc('view.theme')))
+      end
+      if self.current_account.tc('view.no_database_template_lookup').blank?
+        prepend_view_path ThemesForRails::DatabaseResolver.new(name, self.current_account) if ThemesForRails.config.database_enabled
+      end
     end
 
     def public_theme_path

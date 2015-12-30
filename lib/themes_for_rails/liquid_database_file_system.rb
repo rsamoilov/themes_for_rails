@@ -19,17 +19,26 @@ module ThemesForRails
         :account_id => @account.id,
         :theme_id => @account.theme.id
       }
-      if ThemesForRails.config.database_enabled and (record = CustomTemplate.where(conditions).first)
+      
+      if @account.tc('view.no_database_template_lookup').blank? and ThemesForRails.config.database_enabled and (record = CustomTemplate.where(conditions).first)
         record.content
       else
-        full_path = full_path(template_path)
+
+        full_path    = full_path(template_path)
         default_path = default_full_path(template_path)
+        theme_path   = theme_full_path(template_path)
+
         if File.exists?(full_path)
           File.read(full_path)
+
+        elsif theme_path and File.exists?(theme_path)
+          File.read(theme_path)
+
         elsif File.exists?(default_path)
           File.read(default_path)
         end
-      end   
+      end
+
     end
 
     def full_path_no_ext(template_path)
@@ -44,6 +53,11 @@ module ThemesForRails
       raise FileSystemError, "Illegal template path '#{File.expand_path(full_path)}'" unless File.expand_path(full_path) =~ /\A#{File.expand_path(root_no_path)}/
 
       full_path
+    end
+
+    def theme_full_path(template_path)
+      return if @account.tc('view.theme').blank?
+      default_full_path(template_path).to_s.sub('/themes/default/', "/themes/#{@account.tc('view.theme')}/")
     end
 
     def default_full_path(template_path)
