@@ -4,6 +4,20 @@ require "action_controller/metal"
 module ThemesForRails
   class AssetsController < ActionController::Base
 
+    rescue_from ActionView::MissingTemplate, ActiveRecord::RecordNotFound, ActiveRecord::StatementInvalid, NoMethodError do |exception|
+      begin
+        Rails.logger.debug "ThemesForRails::AssetsController => #{exception.class.name} - #{params}"
+        respond_to do |format|
+          format.html { head :not_found }
+          format.xml  { head :not_found }
+          format.any  { head :not_found }
+        end
+      rescue ActionController::UnknownFormat
+        head :not_found
+        Rails.logger.debug "ThemesForRails::AssetsController => ActionController::UnknownFormat - #{params}"
+      end
+    end
+
     def stylesheets
       handle_asset("stylesheets")
     end
