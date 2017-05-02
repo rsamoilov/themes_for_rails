@@ -72,10 +72,10 @@ module ThemesForRails
       path = asset_path(asset_name, asset_theme, asset_type)
       default_path = default_asset_path(asset_name, asset_theme, asset_type)
 
-      if File.exists?(path)
+      if File.exists?(path) && !File.directory?(path)
         yield path, mime_type_for(request)
 
-      elsif File.exists?(default_path)
+      elsif File.exists?(default_path) && !File.directory?(default_path)
         yield default_path, mime_type_for(request)
 
       elsif File.extname(path).blank?
